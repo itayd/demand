@@ -1,0 +1,12 @@
+{
+    "name": "buf",
+    "checks": {
+        "version": {
+            "args": ["--version"],
+            "test": {
+                "name": "semver",
+                "args": [">=", "1.18.0"]
+            }
+        } 
+    }
+}

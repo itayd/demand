@@ -5,11 +5,9 @@ import (
 	"os"
 
 	"github.com/urfave/cli/v2"
-)
 
-func demand(path string) error {
-	return nil
-}
+	"go.autokitteh.dev/demand/demand"
+)
 
 func main() {
 	app := cli.App{
@@ -37,7 +35,7 @@ func main() {
 			for _, path := range c.Args().Slice() {
 				info("processing %q", path)
 
-				if err := demand(path); err != nil {
+				if err := demand.DemandPath(path); err != nil {
 					return fmt.Errorf("%s: %w", path, err)
 				}
 			}
@@ -47,7 +45,7 @@ func main() {
 	}
 
 	if err := app.Run(os.Args); err != nil {
-		hiss("error: %v", err)
+		hiss("%v", err)
 		os.Exit(1)
 	}
 }

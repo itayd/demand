@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 )
 
@@ -10,13 +10,20 @@ var logFlags = struct {
 	quiet   bool
 }{}
 
-func print(f string, vs []any) { fmt.Fprintf(os.Stderr, f+"\n", vs...) }
+func init() {
+	log.SetOutput(os.Stderr)
+	log.SetFlags(0)
+}
 
+func print(f string, vs []any) { log.Printf(f+"\n", vs...) }
+
+/*
 func debug(f string, vs ...any) {
 	if logFlags.verbose {
 		print("[debug] "+f, vs)
 	}
 }
+*/
 
 func info(f string, vs ...any) {
 	if !logFlags.quiet {

@@ -1,0 +1,13 @@
+{
+    "name": "go",
+    "checks": {
+        "version": {
+            "args": ["version"],
+            "capture_re": "[0-9]+\\.[0-9]+\\.[0-9]+",
+            "test": {
+                "name": "semver",
+                "args": [">=", "1.20.3"]
+            }
+        } 
+    }
+}
