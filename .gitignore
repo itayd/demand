@@ -1,0 +1,7 @@
+*.test
+*.out
+/bin
+/gen
+/tmp
+*.sqlite
+*.log
