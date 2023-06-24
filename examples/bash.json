@@ -1,0 +1,12 @@
+{
+    "executable": "bash",
+    "checks": {
+        "version": {
+            "args": ["--version"],
+            "test": {
+                "name": "semver",
+                "args": [">= 3.2.0"]
+            }
+        } 
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "executable": "unobtainium",
+    "checks": {
+        "version": {
+            "args": ["--version"],
+            "test": {
+                "name": "semver",
+                "args": [">= 999"]
+            }
+        } 
+    }
+}

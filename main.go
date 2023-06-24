@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 
@@ -11,16 +13,48 @@ import (
 )
 
 func main() {
+	var list, quiet, fail, onlyincompat bool
+
 	app := cli.App{
 		Name:      "demand",
 		Usage:     "check for installed versions of various tools",
 		UsageText: "demand [-v] [-q] [spec-path1 [spec-path2 ...]]",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:        "fail",
+				Aliases:     []string{"f"},
+				Destination: &fail,
+				Usage:       "fail if any incompatibility detected",
+			},
+			&cli.BoolFlag{
+				Name:        "quiet",
+				Aliases:     []string{"q"},
+				Destination: &quiet,
+				Usage:       "do not print detailed results",
+			},
+			&cli.BoolFlag{
+				Name:        "list",
+				Aliases:     []string{"l"},
+				Destination: &list,
+				Usage:       "list executables that are incompatible",
+			},
+			&cli.BoolFlag{
+				Name:        "only-incompat",
+				Aliases:     []string{"o"},
+				Destination: &onlyincompat,
+				Usage:       "show detailed result only for incompatabilities",
+			},
+		},
 		Action: func(c *cli.Context) error {
+			if onlyincompat && quiet {
+				return errors.New("--only-incompat and --quiet are mutually exclusive")
+			}
+
 			if c.Args().Len() == 0 {
 				return nil
 			}
 
-			ok := true
+			var incompats []string
 
 			for _, path := range c.Args().Slice() {
 				r, err := demand.DemandPath(path)
@@ -29,18 +63,24 @@ func main() {
 				}
 
 				if !r.OK {
-					ok = false
+					incompats = append(incompats, r.Executable)
 				}
 
-				s, err := json.MarshalIndent(r, "", "  ")
-				if err != nil {
-					return fmt.Errorf("json marshal: %w", err)
-				}
+				if !quiet && (!onlyincompat || !r.OK) {
+					s, err := json.MarshalIndent(r, "", "  ")
+					if err != nil {
+						return fmt.Errorf("json marshal: %w", err)
+					}
 
-				fmt.Println(string(s))
+					fmt.Println(string(s))
+				}
 			}
 
-			if !ok {
+			if list {
+				fmt.Println(strings.Join(incompats, " "))
+			}
+
+			if fail && len(incompats) > 0 {
 				return cli.Exit("", 9)
 			}
 

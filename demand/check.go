@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-var semverRe = regexp.MustCompile(`[0-9\.]+`)
+var semverRe = regexp.MustCompile(`[0-9]+\.[0-9\.]+`) // at least major and minor.
 
 // All captured lines are stripped of leading and trailing spaces.
 type Check struct {
