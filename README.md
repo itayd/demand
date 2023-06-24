@@ -74,7 +74,7 @@ $ ./bin/demand -o examples/*; echo $?
 One liner:
 
 ```
-$ ./bin/demand -s "go version semver >=9.0.0" -q -l -f ; echo $?
+$ ./bin/demand -s "go version semver >=9.0.0" -qlf ; echo $?
 go
 9
 ```

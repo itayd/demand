@@ -19,9 +19,10 @@ func main() {
 	)
 
 	app := cli.App{
-		Name:      "demand",
-		Usage:     "check for installed versions of various tools",
-		UsageText: "demand [-v] [-q] [spec-path1 [spec-path2 ...]]",
+		Name:                   "demand",
+		Usage:                  "check for installed versions of various tools",
+		UsageText:              "demand [-v] [-q] [spec-path1 [spec-path2 ...]]",
+		UseShortOptionHandling: true,
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:        "fail",
