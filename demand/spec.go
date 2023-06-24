@@ -28,7 +28,7 @@ func ReadSpec(path string) (*Spec, error) {
 		return nil, fmt.Errorf("read: %w", err)
 	}
 
-	spec, err := ParseSpec(bs)
+	spec, err := ParseJSONSpec(bs)
 	if err != nil {
 		return nil, fmt.Errorf("parse: %w", err)
 	}
@@ -36,7 +36,7 @@ func ReadSpec(path string) (*Spec, error) {
 	return spec, nil
 }
 
-func ParseSpec(in []byte) (*Spec, error) {
+func ParseJSONSpec(in []byte) (*Spec, error) {
 	decoder := json.NewDecoder(bytes.NewReader(in))
 	decoder.DisallowUnknownFields()
 

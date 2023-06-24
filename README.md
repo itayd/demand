@@ -70,3 +70,11 @@ $ ./bin/demand -o examples/*; echo $?
 }
 0
 ```
+
+One liner:
+
+```
+$ ./bin/demand -s "go version semver >=9.0.0" -q -l -f ; echo $?
+go
+9
+```

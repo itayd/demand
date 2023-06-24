@@ -13,7 +13,10 @@ import (
 )
 
 func main() {
-	var list, quiet, fail, onlyincompat bool
+	var (
+		list, quiet, fail, onlyincompat bool
+		specs                           cli.StringSlice
+	)
 
 	app := cli.App{
 		Name:      "demand",
@@ -44,24 +47,25 @@ func main() {
 				Destination: &onlyincompat,
 				Usage:       "show detailed result only for incompatabilities",
 			},
+			&cli.StringSliceFlag{
+				Name:        "spec",
+				Aliases:     []string{"s"},
+				Destination: &specs,
+				Usage:       "one liner spec",
+			},
 		},
 		Action: func(c *cli.Context) error {
 			if onlyincompat && quiet {
 				return errors.New("--only-incompat and --quiet are mutually exclusive")
 			}
 
-			if c.Args().Len() == 0 {
+			if c.Args().Len()+len(specs.Value()) == 0 {
 				return nil
 			}
 
 			var incompats []string
 
-			for _, path := range c.Args().Slice() {
-				r, err := demand.DemandPath(path)
-				if err != nil {
-					return fmt.Errorf("%s: %w", path, err)
-				}
-
+			emit := func(r *demand.Result) error {
 				if !r.OK {
 					incompats = append(incompats, r.Executable)
 				}
@@ -74,6 +78,57 @@ func main() {
 					if err := enc.Encode(r); err != nil {
 						return fmt.Errorf("json encode: %w", err)
 					}
+				}
+
+				return nil
+			}
+
+			for _, txt := range specs.Value() {
+				var spec *demand.Spec
+				if txt[0] == '{' {
+					var err error
+					if spec, err = demand.ParseJSONSpec([]byte(txt)); err != nil {
+						return fmt.Errorf("json one liner: %w", err)
+					}
+				} else {
+					fs := strings.Fields(txt)
+
+					if len(fs) < 3 {
+						return fmt.Errorf("expecting <command> <arg> <test-name> [test-arg1 [test-arg-2 ...]]")
+					}
+
+					spec = &demand.Spec{
+						Executable: fs[0],
+						Checks: map[string]*demand.Check{
+							"check": {
+								Args: []string{fs[1]},
+								Test: demand.Test{
+									Name: fs[2],
+									Args: fs[3:],
+								},
+							},
+						},
+					}
+				}
+
+				r, err := demand.Demand(spec)
+				if err != nil {
+					return fmt.Errorf("one liner: %w", err)
+				}
+
+				if err := emit(r); err != nil {
+					return err
+				}
+			}
+
+			for _, path := range c.Args().Slice() {
+				r, err := demand.DemandPath(path)
+				if err != nil {
+					return fmt.Errorf("%s: %w", path, err)
+				}
+
+				if err := emit(r); err != nil {
+					return err
 				}
 			}
 
