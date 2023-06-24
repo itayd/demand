@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	RegisterTest("semver", Tester{
+	RegisterTester("semver", Tester{
 		Validate: func(args []string) error {
 			if len(args) != 2 {
 				return errors.New("expecting operator and version")
@@ -24,7 +24,7 @@ func init() {
 
 			return nil
 		},
-		Run: func(args []string, in string) (bool, error) {
+		Run: func(args []string, in string) (*TestResult, error) {
 			if !strings.HasPrefix(in, "v") {
 				in = "v" + in
 			}
@@ -35,11 +35,11 @@ func init() {
 			}
 
 			if !semver.IsValid(in) {
-				return false, fmt.Errorf("invalid checked version %q", in)
+				return nil, fmt.Errorf("invalid checked version %q", in)
 			}
 
 			if !semver.IsValid(v) {
-				return false, fmt.Errorf("invalid arg version %q", v)
+				return nil, fmt.Errorf("invalid arg version %q", v)
 			}
 
 			cmp := semver.Compare(semver.Canonical(in), semver.Canonical(v))
@@ -61,7 +61,7 @@ func init() {
 				panic("invalid operator")
 			}
 
-			return ok, nil
+			return &TestResult{OK: ok}, nil
 		},
 	})
 }

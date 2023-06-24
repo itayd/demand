@@ -8,13 +8,13 @@ type Test struct {
 }
 
 type Tester struct {
-	Run      func(args []string, in string) (pass bool, err error)
+	Run      func(args []string, in string) (*TestResult, error)
 	Validate func(args []string) error
 }
 
 var tests = make(map[string]Tester)
 
-func RegisterTest(name string, fn Tester) { tests[name] = fn }
+func RegisterTester(name string, fn Tester) { tests[name] = fn }
 
 func ValidateTest(t *Test) error {
 	f, ok := tests[t.Name]
@@ -29,16 +29,16 @@ func ValidateTest(t *Test) error {
 	return nil
 }
 
-func RunTest(t *Test, in string) (bool, error) {
+func RunTest(t *Test, in string) (*TestResult, error) {
 	f, ok := tests[t.Name]
 	if !ok {
-		return false, fmt.Errorf("test %q is not defined", t.Name)
+		return nil, fmt.Errorf("test %q is not defined", t.Name)
 	}
 
-	pass, err := f.Run(t.Args, in)
+	r, err := f.Run(t.Args, in)
 	if err != nil {
-		return false, fmt.Errorf("test %q: %w", t.Name, err)
+		return nil, fmt.Errorf("test %q: %w", t.Name, err)
 	}
 
-	return pass, nil
+	return r, nil
 }

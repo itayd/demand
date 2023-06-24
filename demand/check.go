@@ -72,9 +72,13 @@ func check(path string, chk *Check) (*CheckResult, error) {
 		captured = append(captured, strings.TrimSpace(l))
 	}
 
-	r.CmdCapture = strings.TrimSpace(strings.Join(captured, "\n"))
+	r.Capture = strings.TrimSpace(strings.Join(captured, "\n"))
 
-	r.OK, err = RunTest(&chk.Test, r.CmdCapture)
+	r.Test, err = RunTest(&chk.Test, r.Capture)
+
+	if r.Test != nil {
+		r.OK = r.Test.OK
+	}
 
 	return &r, err
 }
