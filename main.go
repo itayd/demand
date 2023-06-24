@@ -1,12 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
 	"github.com/urfave/cli/v2"
 
-	"go.autokitteh.dev/demand/demand"
+	"github.com/itayd/demand/demand"
 )
 
 func main() {
@@ -32,12 +33,30 @@ func main() {
 				return nil
 			}
 
-			for _, path := range c.Args().Slice() {
-				info("processing %q", path)
+			ok := true
 
-				if err := demand.DemandPath(path); err != nil {
+			for _, path := range c.Args().Slice() {
+				debug("processing %q", path)
+
+				r, err := demand.DemandPath(path)
+				if err != nil {
 					return fmt.Errorf("%s: %w", path, err)
 				}
+
+				if !r.OK {
+					ok = false
+				}
+
+				s, err := json.MarshalIndent(r, "", "  ")
+				if err != nil {
+					return fmt.Errorf("json marshal: %w", err)
+				}
+
+				print("%s", s)
+			}
+
+			if !ok {
+				return cli.Exit("", 9)
 			}
 
 			return nil

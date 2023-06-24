@@ -8,7 +8,7 @@ type Test struct {
 }
 
 type Tester struct {
-	Run      func(args []string, in string) (pass bool, msg string, err error)
+	Run      func(args []string, in string) (pass bool, err error)
 	Validate func(args []string) error
 }
 
@@ -29,16 +29,16 @@ func ValidateTest(t *Test) error {
 	return nil
 }
 
-func RunTest(t *Test, in string) (bool, string, error) {
+func RunTest(t *Test, in string) (bool, error) {
 	f, ok := tests[t.Name]
 	if !ok {
-		return false, "", fmt.Errorf("test %q is not defined", t.Name)
+		return false, fmt.Errorf("test %q is not defined", t.Name)
 	}
 
-	pass, msg, err := f.Run(t.Args, in)
+	pass, err := f.Run(t.Args, in)
 	if err != nil {
-		return false, "", fmt.Errorf("test %q: %w", t.Name, err)
+		return false, fmt.Errorf("test %q: %w", t.Name, err)
 	}
 
-	return pass, msg, nil
+	return pass, nil
 }

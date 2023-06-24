@@ -37,12 +37,15 @@ func (c *Check) compile() (err error) {
 	return nil
 }
 
-func check(path string, chk *Check) error {
+func check(path string, chk *Check) (*CheckResult, error) {
+	r := CheckResult{Args: chk.Args}
+
 	cmd := exec.Command(path, chk.Args...)
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("run: %w", err)
+		r.ExitCode = cmd.ProcessState.ExitCode()
+		return &r, nil
 	}
 
 	ls := strings.Split(string(out), "\n")
@@ -69,16 +72,9 @@ func check(path string, chk *Check) error {
 		captured = append(captured, strings.TrimSpace(l))
 	}
 
-	in := strings.TrimSpace(strings.Join(captured, "\n"))
+	r.CmdCapture = strings.TrimSpace(strings.Join(captured, "\n"))
 
-	pass, msg, err := RunTest(&chk.Test, in)
-	if err != nil {
-		return err
-	}
+	r.OK, err = RunTest(&chk.Test, r.CmdCapture)
 
-	if !pass {
-		return fmt.Errorf("%q %q %v failed: %s", chk.Test.Name, in, chk.Test.Args, msg)
-	}
-
-	return nil
+	return &r, err
 }

@@ -2,7 +2,6 @@ package demand
 
 import (
 	"fmt"
-	"log"
 	"os/exec"
 )
 
@@ -15,35 +14,45 @@ var (
 	Demand     = DefaultConfig.Demand
 )
 
-func (c Config) DemandPath(path string) error {
+func (c Config) DemandPath(path string) (*Result, error) {
 	spec, err := ReadSpec(path)
 	if err != nil {
-		return fmt.Errorf("spec: %w", err)
+		return nil, fmt.Errorf("spec: %w", err)
 	}
 
 	return c.Demand(spec)
 }
 
-func (Config) Demand(spec *Spec) error {
+func (Config) Demand(spec *Spec) (*Result, error) {
 	s := *spec
 	spec = &s
 
 	if err := spec.compile(); err != nil {
-		return err
+		return nil, err
 	}
 
 	path, err := exec.LookPath(spec.Name)
 	if err != nil {
-		return err
+		return &Result{}, nil
 	}
 
-	log.Printf("%q: found at %q", spec.Name, path)
+	result := Result{
+		FullPath: path,
+		OK:       true,
+	}
 
 	for n, chk := range spec.Checks {
-		if err := check(path, chk); err != nil {
-			return fmt.Errorf("check %q: %w", n, err)
+		chkr, err := check(path, chk)
+		if err != nil {
+			return nil, fmt.Errorf("check %q: %w", n, err)
 		}
+
+		if !chkr.OK {
+			result.OK = false
+		}
+
+		result.Checks = append(result.Checks, chkr)
 	}
 
-	return nil
+	return &result, nil
 }

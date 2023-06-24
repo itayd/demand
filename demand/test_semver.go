@@ -24,7 +24,7 @@ func init() {
 
 			return nil
 		},
-		Run: func(args []string, in string) (bool, string, error) {
+		Run: func(args []string, in string) (bool, error) {
 			if !strings.HasPrefix(in, "v") {
 				in = "v" + in
 			}
@@ -35,11 +35,11 @@ func init() {
 			}
 
 			if !semver.IsValid(in) {
-				return false, "", fmt.Errorf("invalid checked version %q", in)
+				return false, fmt.Errorf("invalid checked version %q", in)
 			}
 
 			if !semver.IsValid(v) {
-				return false, "", fmt.Errorf("invalid arg version %q", v)
+				return false, fmt.Errorf("invalid arg version %q", v)
 			}
 
 			cmp := semver.Compare(semver.Canonical(in), semver.Canonical(v))
@@ -61,7 +61,7 @@ func init() {
 				panic("invalid operator")
 			}
 
-			return ok, "", nil
+			return ok, nil
 		},
 	})
 }
