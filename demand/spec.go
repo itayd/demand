@@ -1,6 +1,7 @@
 package demand
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -36,9 +37,12 @@ func ReadSpec(path string) (*Spec, error) {
 }
 
 func ParseSpec(in []byte) (*Spec, error) {
+	decoder := json.NewDecoder(bytes.NewReader(in))
+	decoder.DisallowUnknownFields()
+
 	var spec Spec
 
-	if err := json.Unmarshal(in, &spec); err != nil {
+	if err := decoder.Decode(&spec); err != nil {
 		return nil, err
 	}
 

@@ -1,5 +1,5 @@
 {
-    "executable": "unobtainium",
+    "executable": "unobtainium1",
     "checks": {
         "version": {
             "args": ["--version"],

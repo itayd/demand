@@ -67,12 +67,13 @@ func main() {
 				}
 
 				if !quiet && (!onlyincompat || !r.OK) {
-					s, err := json.MarshalIndent(r, "", "  ")
-					if err != nil {
-						return fmt.Errorf("json marshal: %w", err)
-					}
+					enc := json.NewEncoder(os.Stdout)
+					enc.SetEscapeHTML(false)
+					enc.SetIndent("", "  ")
 
-					fmt.Println(string(s))
+					if err := enc.Encode(r); err != nil {
+						return fmt.Errorf("json encode: %w", err)
+					}
 				}
 			}
 

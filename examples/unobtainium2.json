@@ -1,0 +1,13 @@
+{
+    "executable": "awk",
+    "checks": {
+        "version": {
+            "capture": "[0-9]+",
+            "args": ["--version"],
+            "test": {
+                "name": "semver",
+                "args": ["> 30000000"]
+            }
+        } 
+    }
+}

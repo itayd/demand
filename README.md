@@ -3,7 +3,7 @@
 Examples:
 
 ```
-$ demand examples/jq.json examples/un*
+$ demand examples/jq.json examples/unobtainium1.json
 {
   "ok": true,
   "executable": "jq",
@@ -19,7 +19,7 @@ $ demand examples/jq.json examples/un*
         "ok": true,
         "name": "semver",
         "args": [
-          "\u003e= 1.6"
+          ">= 1.6"
         ]
       }
     }
@@ -35,16 +35,38 @@ Fail if incompatible and list incompabilities:
 
 ```
 $ ./bin/demand -q -l -f examples/*; echo $?
-unobtainium
+unobtainium1 awk
 9
 ```
 
 Show detailed results of only incompatabilities:
 
 ```
-$ ./bin/demand  -o examples/*; echo $?    
+$ ./bin/demand -o examples/*; echo $?    
 {
   "ok": false,
-  "executable": "unobtainium"
+  "executable": "unobtainium1"
 }
-9
+{
+  "ok": false,
+  "executable": "awk",
+  "full_path": "/usr/bin/awk",
+  "checks": [
+    {
+      "ok": false,
+      "args": [
+        "--version"
+      ],
+      "capture": "20200816",
+      "test": {
+        "ok": false,
+        "name": "semver",
+        "args": [
+          "> 30000000"
+        ]
+      }
+    }
+  ]
+}
+0
+```
