@@ -5,63 +5,34 @@ import (
 	"fmt"
 	"strings"
 
-	"golang.org/x/mod/semver"
+	"github.com/hashicorp/go-version"
 )
 
 func init() {
 	RegisterTester("semver", Tester{
 		Validate: func(args []string) error {
-			if len(args) != 2 {
-				return errors.New("expecting operator and version")
+			if len(args) == 0 {
+				return errors.New("expecting at least a single constraint")
 			}
 
-			switch args[0] {
-			case "<", "=", "==", ">", "<=", ">=":
-				// nop
-			default:
-				return errors.New("invalid operator")
-			}
+			_, err := version.NewConstraint(strings.Join(args, ","))
 
-			return nil
+			return err
 		},
 		Run: func(args []string, in string) (*TestResult, error) {
-			if !strings.HasPrefix(in, "v") {
-				in = "v" + in
+			c, err := version.NewConstraint(args[0])
+			if err != nil {
+				return nil, fmt.Errorf("invalid constraint: %w", err)
 			}
 
-			v := args[1]
-			if !strings.HasPrefix(v, "v") {
-				v = "v" + v
+			v1, err := version.NewVersion(in)
+			if err != nil {
+				return &TestResult{
+					Messages: []string{err.Error()},
+				}, nil
 			}
 
-			if !semver.IsValid(in) {
-				return nil, fmt.Errorf("invalid checked version %q", in)
-			}
-
-			if !semver.IsValid(v) {
-				return nil, fmt.Errorf("invalid arg version %q", v)
-			}
-
-			cmp := semver.Compare(semver.Canonical(in), semver.Canonical(v))
-
-			ok := false
-
-			switch args[0] {
-			case "=", "==":
-				ok = cmp == 0
-			case "<":
-				ok = cmp < 0
-			case ">":
-				ok = cmp > 0
-			case "<=":
-				ok = cmp <= 0
-			case ">=":
-				ok = cmp >= 0
-			default:
-				panic("invalid operator")
-			}
-
-			return &TestResult{OK: ok}, nil
+			return &TestResult{OK: c.Check(v1)}, nil
 		},
 	})
 }

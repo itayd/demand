@@ -7,11 +7,13 @@ import (
 	"strings"
 )
 
+var semverRe = regexp.MustCompile(`[0-9\.]+`)
+
 // All captured lines are stripped of leading and trailing spaces.
 type Check struct {
 	Args      []string `json:"args"` // will be supplied to command checked.
-	FilterRE  string   `json:"filter_re"`
-	CaptureRE string   `json:"capture_re"` // all lines will be fed joined by '\n's to checker.
+	FilterRE  string   `json:"filter"`
+	CaptureRE string   `json:"capture"` // default is semverRe. all lines will be fed joined by '\n's to checker.
 	Test      Test     `json:"test"`
 
 	filterRE, captureRE *regexp.Regexp
@@ -24,7 +26,9 @@ func (c *Check) compile() (err error) {
 		}
 	}
 
-	if c.CaptureRE != "" {
+	if c.CaptureRE == "" {
+		c.captureRE = semverRe
+	} else {
 		if c.captureRE, err = regexp.Compile(c.CaptureRE); err != nil {
 			return fmt.Errorf("capture_re: %w", err)
 		}
@@ -60,13 +64,13 @@ func check(path string, chk *Check) (*CheckResult, error) {
 		}
 
 		if re := chk.captureRE; re != nil {
-			m := re.FindString(l)
+			m := re.FindAllStringSubmatch(l, 1)
 
-			if m == "" {
+			if m == nil {
 				continue
 			}
 
-			l = m
+			l = m[0][0]
 		}
 
 		captured = append(captured, strings.TrimSpace(l))

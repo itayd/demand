@@ -40,5 +40,9 @@ func RunTest(t *Test, in string) (*TestResult, error) {
 		return nil, fmt.Errorf("test %q: %w", t.Name, err)
 	}
 
+	if r != nil {
+		r.Name, r.Args = t.Name, t.Args
+	}
+
 	return r, nil
 }

@@ -15,29 +15,14 @@ func main() {
 		Name:      "demand",
 		Usage:     "check for installed versions of various tools",
 		UsageText: "demand [-v] [-q] [spec-path1 [spec-path2 ...]]",
-		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:        "verbose",
-				Aliases:     []string{"v"},
-				Destination: &logFlags.verbose,
-			},
-			&cli.BoolFlag{
-				Name:        "quiet",
-				Aliases:     []string{"q"},
-				Destination: &logFlags.quiet,
-			},
-		},
 		Action: func(c *cli.Context) error {
 			if c.Args().Len() == 0 {
-				info("no spec files specified")
 				return nil
 			}
 
 			ok := true
 
 			for _, path := range c.Args().Slice() {
-				debug("processing %q", path)
-
 				r, err := demand.DemandPath(path)
 				if err != nil {
 					return fmt.Errorf("%s: %w", path, err)
@@ -52,7 +37,7 @@ func main() {
 					return fmt.Errorf("json marshal: %w", err)
 				}
 
-				print("%s", s)
+				fmt.Println(string(s))
 			}
 
 			if !ok {
@@ -64,7 +49,7 @@ func main() {
 	}
 
 	if err := app.Run(os.Args); err != nil {
-		hiss("%v", err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }

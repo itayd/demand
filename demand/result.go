@@ -1,13 +1,16 @@
 package demand
 
 type TestResult struct {
-	OK bool `json:"ok"`
+	OK       bool     `json:"ok"`
+	Messages []string `json:"messages,omitempty"`
+	Name     string   `json:"name"`
+	Args     []string `json:"args,omitempty"`
 }
 
 type CheckResult struct {
 	OK       bool        `json:"ok"`
+	ExitCode int         `json:"exit_code,omitempty"`
 	Args     []string    `json:"args"`
-	ExitCode int         `json:"exit_code"`
 	Capture  string      `json:"capture"`
 	Test     *TestResult `json:"test,omitempty"`
 }
