@@ -1,8 +1,7 @@
 package demand
 
 type TestResult struct {
-	OK       bool     `json:"ok"`
-	Messages []string `json:"messages,omitempty"`
+	OK bool `json:"ok"`
 }
 
 type CheckResult struct {
@@ -14,7 +13,8 @@ type CheckResult struct {
 }
 
 type Result struct {
-	OK       bool           `json:"ok"`
-	FullPath string         `json:"full_path"`
-	Checks   []*CheckResult `json:"checks"`
+	OK         bool           `json:"ok"`
+	Executable string         `json:"executable"`
+	FullPath   string         `json:"full_path,omitempty"`
+	Checks     []*CheckResult `json:"checks,omitempty"`
 }

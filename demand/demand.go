@@ -31,15 +31,15 @@ func (Config) Demand(spec *Spec) (*Result, error) {
 		return nil, err
 	}
 
-	path, err := exec.LookPath(spec.Name)
+	r := Result{Executable: spec.Executable}
+
+	path, err := exec.LookPath(spec.Executable)
 	if err != nil {
-		return &Result{}, nil
+		return &r, nil
 	}
 
-	result := Result{
-		FullPath: path,
-		OK:       true,
-	}
+	r.FullPath = path
+	r.OK = true
 
 	for n, chk := range spec.Checks {
 		chkr, err := check(path, chk)
@@ -48,11 +48,11 @@ func (Config) Demand(spec *Spec) (*Result, error) {
 		}
 
 		if !chkr.OK {
-			result.OK = false
+			r.OK = false
 		}
 
-		result.Checks = append(result.Checks, chkr)
+		r.Checks = append(r.Checks, chkr)
 	}
 
-	return &result, nil
+	return &r, nil
 }

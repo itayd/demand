@@ -1,5 +1,5 @@
 {
-    "name": "go",
+    "executable": "go",
     "checks": {
         "version": {
             "args": ["version"],

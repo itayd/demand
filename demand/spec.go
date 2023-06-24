@@ -7,8 +7,8 @@ import (
 )
 
 type Spec struct {
-	Name   string            `json:"name"`
-	Checks map[string]*Check `json:"checks"`
+	Executable string            `json:"executable"`
+	Checks     map[string]*Check `json:"checks"`
 }
 
 func (s *Spec) compile() error {
